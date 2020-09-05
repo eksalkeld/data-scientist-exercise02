@@ -103,8 +103,15 @@ outcome_types.extend(['TotalCount','NonFatalInjured','Injured'])
 for i in outcome_types:
     aviation[i+'_Ratio']=aviation[i].div(aviation['TotalCount'])
     
+
+############################Build ground truth########################################
 #Sudo target for binary prediction
-aviation['target']=aviation.apply(lambda x: 1 if x['Injured']!=0 else (0 if ~np.isnan(x['TotalCount']) else np.nan) ,axis=1)
+#1= value for total fatal, minor, serious
+#0= value for uninjured
+#nan if none filled out
+
+aviation['ReportsNull']=aviation[['TotalFatalInjuries','TotalSeriousInjuries', 'TotalMinorInjuries', 'TotalUninjured']].isnull().all(1)
+aviation['target']=aviation.apply(lambda x: np.nan if x['ReportsNull']==True else (1 if x['Injured']>0 else 0) ,axis=1)
 
 ###################################################################################
 #########################DATE EXPLORATION##########################################
@@ -175,17 +182,38 @@ plt.xlabel('Year',fontsize=10)
 plt.ylabel('All Injuries to Total Passangers',fontsize=10)
 fig.savefig('AirplaneRiskTime2.png',bbox_inches='tight')
 
+snsplot=sns.lmplot('EventDate_year','Injured', data=planes,fit_reg=False,hue='EventDate_dayofweek')
+fig=snsplot.fig
+plt.title('Injuries from Planes over Time',fontsize=15)
+plt.xlabel('Year',fontsize=10)
+plt.ylabel('Injury counts of Passangers',fontsize=10)
+fig.savefig('AirplaneRiskTime2.png',bbox_inches='tight')
+
+
 
 #########################WEATHER EXPLORATION##########################################
 
+pd.crosstab(aviation.AircraftDamage,aviation.WeatherCondition)
 
+#IMC is lowest in the summer and VMC higher in the summer -- winter weather worse to travel in?
+#UNK is unknown? not showing up in googling weather codes...
+pd.crosstab(aviation.EventDate_month,aviation.WeatherCondition)
 
-############################Build ground truth########################################
+pd.crosstab(aviation.WeatherCondition,aviation.target)
+#VMC non injury rate= 0.57066
+39190/(39190+29484)
+#IMC non injury rate= 0.228284
+1272/(1272+4300)
+#########################LOCATION EXPLORATION##########################################
+['Country','Latitude','Longitude','Location']
 
+aviation.groupby('Country').EventId.count().reset_index().sort_values('EventId',ascending=False)
+aviation.groupby('Location').EventId.count().reset_index().sort_values('EventId',ascending=False)
 
-#1= value for total fatal, minor, serious
-#0= value for uninjured
-#nan if none filled out
+pd.crosstab(aviation.Location,aviation.target)
+
+pd.crosstab(aviation.Country,aviation.target)
+
 
 
 
