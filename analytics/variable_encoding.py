@@ -44,3 +44,37 @@ def date_processing(df,col_name,subcomponents=True):
     #If there is an issue with the data provided
     except ValueError:
         return df
+    
+    
+def target_encode_one(df,col_name):
+    
+    cat_mean=df.groupby(col_name)['target'].mean()
+    
+    df.loc[:,col_name+'_tar_enc']=df[col_name].map(cat_mean)
+    
+    return df
+
+import category_encoders
+def target_encode_two(df,col_names):
+    
+    ce_target=category_encoders.TargetEncoder(cols=[col_names])
+    
+    ce_target.fit(df,df['target'])
+    
+    ##############FIX
+    df['Carrier_tar2']=ce_target.transform(df,df['target'])
+    
+    return df, ce_target
+
+#Param set to say nan values have WOE=0
+def woe_encoder(df,col_names):
+    #Try, ValueError if target has nan outcomes
+    ce_woe=category_encoders.woe.WOEEncoder(cols=[col_names])
+
+    ce_woe.fit(df,df['target'])
+    
+    ce_woe.transform(df,df['target'])
+    
+    return df, ce_woe
+
+
