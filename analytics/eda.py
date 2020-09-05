@@ -162,6 +162,22 @@ for i in plane_cols:
     print(i+": "+str(len(aviation[i].unique())))
 
 
+##################################Carrier Coding########################
+#.str.contains("(?i)word1|word2")
+
+aviation.groupby('AirCarrier').EventId.count().reset_index().sort_values('EventId',ascending=False)
+
+aviation['Carrier']='OtherCarrier'
+aviation['Carrier'][aviation['AirCarrier'].str.contains("(?i)DELTA AIRLINES|DELTA AIR LINES")] = "Delta"
+aviation['Carrier'][aviation['AirCarrier'].str.contains("(?i)SOUTHWEST AIRLINES|SOUTHWEST AIR LINES")] = "Southwest"
+aviation['Carrier'][aviation['AirCarrier'].str.contains("(?i)AMERICAN AIRLINES|AMERICAN AIR LINES")] = "American"
+aviation['Carrier'][aviation['AirCarrier'].str.contains("(?i)UNITED AIRLINES|UNITED AIR LINES")] = "United"
+aviation['Carrier'][aviation['AirCarrier'].str.contains("(?i)CONTINENTAL AIRLINES|CONTINENTAL AIR LINES")] = "Continental"
+aviation['Carrier'][aviation['AirCarrier'].str.contains("(?i)USAIR|US AIRWAYS")] = "USAir"
+aviation['Carrier'][aviation['AirCarrier']==''] = "UnknownCarrier"
+
+
+
 #JUST THE AIRPLANES
 planes=aviation[aviation['AircraftCategory']=='Airplane']
 #Yearly sum of injuries
@@ -182,12 +198,28 @@ plt.xlabel('Year',fontsize=10)
 plt.ylabel('All Injuries to Total Passangers',fontsize=10)
 fig.savefig('AirplaneRiskTime2.png',bbox_inches='tight')
 
-snsplot=sns.lmplot('EventDate_year','Injured', data=planes,fit_reg=False,hue='EventDate_dayofweek')
+snsplot=sns.lmplot('EventDate_year','Injured', data=planes,fit_reg=False,hue='Carrier')
 fig=snsplot.fig
 plt.title('Injuries from Planes over Time',fontsize=15)
 plt.xlabel('Year',fontsize=10)
 plt.ylabel('Injury counts of Passangers',fontsize=10)
 fig.savefig('AirplaneRiskTime2.png',bbox_inches='tight')
+
+plane50=planes[planes['Injured']<=55]
+plane50carriers=plane50[(plane50['Carrier']!='UnknownCarrier') & (plane50['Carrier']!='OtherCarrier')]
+
+snsplot=sns.lmplot('EventDate_year','Injured', data=plane50carriers,fit_reg=False,hue='Carrier')
+fig=snsplot.fig
+plt.title('Injuries from Planes over Time',fontsize=15)
+plt.xlabel('Year',fontsize=10)
+plt.ylabel('Injury counts of Passangers',fontsize=10)
+
+plane10=plane50carriers[plane50carriers['Injured']<=10]
+snsplot=sns.lmplot('EventDate_year','Injured', data=plane10,fit_reg=False,hue='Carrier')
+fig=snsplot.fig
+plt.title('Injuries from Planes over Time',fontsize=15)
+plt.xlabel('Year',fontsize=10)
+plt.ylabel('Injury counts of Passangers',fontsize=10)
 
 
 
