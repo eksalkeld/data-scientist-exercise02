@@ -77,4 +77,10 @@ def woe_encoder(df,col_names):
     
     return df, ce_woe
 
-
+def freq_encode(df,col_name):
+    
+    cat_freq=df.groupby(col_name).size()/float(df.shape[0])
+    
+    df.loc[:,col_name+'_freq_enc']=df[col_name].map(cat_freq)
+    
+    return df
