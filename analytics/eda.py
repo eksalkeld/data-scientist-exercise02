@@ -113,6 +113,7 @@ for i in outcome_types:
 aviation['ReportsNull']=aviation[['TotalFatalInjuries','TotalSeriousInjuries', 'TotalMinorInjuries', 'TotalUninjured']].isnull().all(1)
 aviation['target']=aviation.apply(lambda x: np.nan if x['ReportsNull']==True else (1 if x['Injured']>0 else 0) ,axis=1)
 
+prediction=aviation[aviation['target'].notnull()]
 ###################################################################################
 #########################DATE EXPLORATION##########################################
 #Time between event and a publication
