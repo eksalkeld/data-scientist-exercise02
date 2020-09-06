@@ -20,67 +20,123 @@ def encode_carrier(df):
     df['Carrier'][df['AirCarrier']==''] = "UnknownCarrier"
 
     return df
-
-
-def date_processing(df,col_name,subcomponents=True):
-    
-    try:
-        #String to datetime
-        df[col_name]=pd.to_datetime(aviation[col_name])
-    
-        #If the date components are desired
-        if subcomponents:
-            #Extract the year
-            df[col_name+'_year']=df.apply(lambda x: x[col_name].year, axis=1)
-            #Extract the month
-            df[col_name+'_month']=df.apply(lambda x: x[col_name].month, axis=1)
-            #Extract the day
-            df[col_name+'_day']=df.apply(lambda x: x[col_name].day, axis=1)
-            #Extract the day of week
-            df[col_name+'_dayofweek']=df.apply(lambda x: x[col_name].dayofweek, axis=1)
-            
-        return df
-            
-    #If there is an issue with the data provided
-    except ValueError:
-        return df
     
     
-def target_encode_one(df,col_name):
+def target_encode_alternative(df,col_name, model_cols):
     
     cat_mean=df.groupby(col_name)['target'].mean()
     
     df.loc[:,col_name+'_tar_enc']=df[col_name].map(cat_mean)
     
-    return df
+    #Transformed column to consider for feature selection
+    model_cols.extend([col_name+'_tar_enc'])
+
+    return df, model_cols
 
 import category_encoders
-def target_encode_two(df,col_names):
+def target_encode(df,col_names, model_cols):
     
-    ce_target=category_encoders.TargetEncoder(cols=[col_names])
+    try:
+        #Define encoder and what column to evaluate
+        ce_target=category_encoders.TargetEncoder(cols=[col_names])
     
-    ce_target.fit(df,df['target'])
+        #Train the encoder
+        ce_target.fit(df,df['target'])
     
-    ##############FIX
-    df['Carrier_tar2']=ce_target.transform(df,df['target'])
+        #Apply the encoder to the data
+        df=ce_target.transform(df,df['target'])
+        
+        #Transformed column to consider for feature selection
+        model_cols.extend([col_names])
     
-    return df, ce_target
+        return df, ce_target, model_cols
+    
+    #NaN in the target variable throws error
+    except ValueError:
+        return df, None, model_cols
+    
+def apply_targetenc(df,ce_target):
+    
+    try:
+        #Apply the encoder to the data
+        df=ce_target.transform(df,df['target'])
+    
+        return df
+    
+    #If encoder not defined or is not an actual encoder
+    except (NameError,AttributeError):
+        return df
 
-#Param set to say nan values have WOE=0
-def woe_encoder(df,col_names):
+
+def woe_encoder(df,col_names, model_cols):
     #Try, ValueError if target has nan outcomes
-    ce_woe=category_encoders.woe.WOEEncoder(cols=[col_names])
+    try:
+        #Define encoder and what column to evaluate
+        #Param set to say nan values have WOE=0
+        ce_woe=category_encoders.woe.WOEEncoder(cols=[col_names])
 
-    ce_woe.fit(df,df['target'])
+        #Train the encoder
+        ce_woe.fit(df,df['target'])
     
-    ce_woe.transform(df,df['target'])
-    
-    return df, ce_woe
+        #Apply the encoder to the data
+        df=ce_woe.transform(df,df['target'])
+        
+        #Transformed column to consider for feature selection
+        model_cols.extend([col_names])
 
-def freq_encode(df,col_name):
+        return df, ce_woe, model_cols
     
+    #NaN values in target throw an error
+    except ValueError:
+        return df, None, model_cols
+    
+def apply_woe(df,ce_woe):
+    
+    try:
+        #Apply the encoder to the data
+        df=ce_woe.transform(df,df['target'])
+    
+        return df
+    
+    #If encoder not defined or is not an actual encoder
+    except (NameError,AttributeError):
+        return df
+
+def freq_encode(df,col_name, model_cols):
+    
+    #Find the frequency of occurences of each category of a column, relative to the size of the dataframe
     cat_freq=df.groupby(col_name).size()/float(df.shape[0])
     
+    #Map the frequencies to their category counterparts, creating a new variable
     df.loc[:,col_name+'_freq_enc']=df[col_name].map(cat_freq)
     
-    return df
+    #Transformed column to consider for feature selection
+    model_cols.extend([col_name+'_freq_enc'])
+    
+    return df, cat_freq, model_cols
+
+def apply_freq(df,cat_freq):
+    
+    try:
+        #Apply the encoder to the data
+        df.loc[:,col_name+'_freq_enc']=df[col_name].map(cat_freq)
+    
+        return df
+    
+    #If encoder not defined or is not an actual encoder
+    except (NameError,AttributeError):
+        return df
+
+
+def dummy_code(df,col_name,model_cols):
+    
+    #List of original columns
+    orig_cols=df.columns
+    
+    #Create the dummy variables
+    df=pd.get_dummies(df,prefix=[col_name],dummy_na=False,columns=[col_name])
+    
+    #Transformed columns to consider for feature selection
+    model_cols.extend(list(set(df.columns)-set(orig_cols)))
+    
+    return df, model_cols
