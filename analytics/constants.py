@@ -27,3 +27,6 @@ cols_to_woe=[]
 cols_to_freq=['AircraftCategory','BroadPhaseOfFlight','EngineType','FARDescription']
 
 chithresh=0.01
+
+seed=425
+kfold=5
