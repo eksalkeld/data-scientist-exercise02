@@ -26,7 +26,10 @@ cols_to_woe=[]
 #Cols that will be frequency encoded: 12-17
 cols_to_freq=['AircraftCategory','BroadPhaseOfFlight','EngineType','FARDescription']
 
+
+corr_threshold=0.8
 chithresh=0.01
+rf_thresh=0.01
 
 seed=425
 kfold=5
