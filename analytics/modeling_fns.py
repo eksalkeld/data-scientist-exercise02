@@ -4,12 +4,13 @@ Created on Sun Sep  6 15:57:19 2020
 
 @author: eksalkeld
 """
+from constants import *
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 import numpy as np
-from constants import *
+
 
 def pd_to_np(df,model_cols):
     
