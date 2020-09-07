@@ -57,21 +57,22 @@ def strip_columns(df,suffix_vals):
 def date_processing(df,col_name,subcomponents=True):
     
     try:
+        dfdate=df.copy()
         #String to datetime
-        df[col_name]=pd.to_datetime(df[col_name])
+        dfdate.loc[:,col_name]=pd.to_datetime(df[col_name])
     
         #If the date components are desired
         if subcomponents:
             #Extract the year
-            df[col_name+'_year']=df.apply(lambda x: x[col_name].year, axis=1)
+            dfdate.loc[:,col_name+'_year']=dfdate.apply(lambda x: x[col_name].year, axis=1)
             #Extract the month
-            df[col_name+'_month']=df.apply(lambda x: x[col_name].month, axis=1)
+            dfdate.loc[:,col_name+'_month']=dfdate.apply(lambda x: x[col_name].month, axis=1)
             #Extract the day
-            df[col_name+'_day']=df.apply(lambda x: x[col_name].day, axis=1)
+            dfdate.loc[:,col_name+'_day']=dfdate.apply(lambda x: x[col_name].day, axis=1)
             #Extract the day of week
-            df[col_name+'_dayofweek']=df.apply(lambda x: x[col_name].dayofweek, axis=1)
+            dfdate.loc[:,col_name+'_dayofweek']=dfdate.apply(lambda x: x[col_name].dayofweek, axis=1)
             
-        return df
+        return dfdate
             
     #If there is an issue with the data provided
     except ValueError:
@@ -102,7 +103,8 @@ def convert_numeric(df, cols_to_numeric):
     
     #loop through each column that needs to be converted and transform to numeric
     for i in cols_to_numeric:
-        df[i]=pd.to_numeric(df[i],errors='coerce')
+        #df[i]=pd.to_numeric(df[i],errors='coerce')
+        df.loc[:,i] = pd.to_numeric(df[i],errors='coerce')
         
     return df
     
