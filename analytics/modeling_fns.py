@@ -21,10 +21,6 @@ def pd_to_np(df,model_cols):
 
 def ttv_split(X,y):
     
-    train_proportion=0.5
-    test_proportion=0.25
-    val_proportion=0.25
-    
     #Adjust the ratios for how the algorithm understands them
     test_size1=1-train_proportion
     test_size2=test_size1-val_proportion
@@ -38,8 +34,6 @@ def ttv_split(X,y):
     return X_train, y_train, X_test, y_test, X_val, y_val
 
 def tt_split(X,y):
-    
-    train_proportion=0.5
     
     #Adjust the ratios for how the algorithm understands them
     test_size1=1-train_proportion
