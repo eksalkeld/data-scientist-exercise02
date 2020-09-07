@@ -6,6 +6,8 @@ Created on Sun Sep  6 12:58:58 2020
 """
 from data_clean import *
 from variable_encoding import *
+from feature_selection.py import *
+from modeling_fns.py import *
 from constants import *
 
 import pandas as pd
@@ -110,12 +112,14 @@ miss_cols=missingcount(df[model_cols])
 rf_vars=rf_imp(df[model_cols],df.target)
 
 #COMBINE: the yeses of chi and rf, the nos of corr and miss
+old_model_cols=model_cols
 model_cols=[x for x in model_cols if (x in chi_with_dummies or x in rf_vars) and (x not in corr_cols and x not in miss_cols)]
 
 #Scale the features
 dfmodel,scaler=fitscale(df[model_cols],"StandardScaler")
 
 #Add identifier back in
+dfmodel=pd.merge(dfmodel, df[['AccidentNumber','EventId']], left_index=True, right_index=True)
 
 #Train, test, val(?) split
 if no_val_set:
@@ -125,14 +129,21 @@ else:
 
 
 #Train model
-model, chosenmodel, modelc, modelpenalty, modelweight, modelperf=model_train(X_train,y_train)
+model, chosenmodel, modelc, modelpenalty, modelweight, modelperf=model_train(X_train[model_cols],y_train)
 
 #Predictions
-train_prob_pred, train_class_pred=model_predict(X_train,model)
-test_prob_pred, test_class_pred=model_predict(X_test,model)
+train_prob_pred, train_class_pred=model_predict(X_train[model_cols],model)
+test_prob_pred, test_class_pred=model_predict(X_test[model_cols],model)
+
+#Merge predictions back into train/test dataframe
+X_train['probability']=pd.Series(train_prob_pred)
+X_train['class']=pd.Series(train_class_pred)
+X_test['probability']=pd.Series(test_prob_pred)
+X_test['class']=pd.Series(test_class_pred)
 
 #Coefficients
-
+coefficients=pd.DataFrame(list(zip(model_cols,chosenmodel.coef_[0])),columns=['col_name','coefficient'])
+    
 #Performance
 precision, recall, f1, cm, TN, FP, FN, TP=performance(test_class_pred,y_test)
 
