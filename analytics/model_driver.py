@@ -34,13 +34,6 @@ df=encode_carrier(df)
 for i in cols_to_dummy:
     df,model_cols=dummy_code(df,i,model_cols)
 
-#Train, test, val split
-train=df
-test=df
-val=df
-
-
-
 encoders={}
 
 #Find proper encoding for train set
@@ -49,7 +42,7 @@ for i in cols_to_freq:
     #Name for storing the encoder
     encoder_name=i+"_encoder"
     #Train encoder and transform data
-    train,encoder,model_cols=freq_encode(train,i, model_cols)
+    df,encoder,model_cols=freq_encode(df,i, model_cols)
     #Store the encoder
     encoders[encoder_name]=encoder
     
@@ -67,40 +60,45 @@ for i in cols_to_woe:
     #Name for storing the encoder
     encoder_name=i+"_encoder"
     #Train encoder and transform data
-    train,encoder,model_cols=woe_encoder(train,i, model_cols)
+    df,encoder,model_cols=woe_encoder(df,i, model_cols)
     #Store the encoder
     encoders[encoder_name]=encoder
-    
-#Process test and validation sets with the encoding
-for j in [test,val]:
-    
-    #Frequency encoding
-    for i in cols_to_freq:
-        encoder=encoders[i+"_encoder"]
-        j=apply_freq(j,encoder_name)
-    
-    #Target encoding
-    for i in cols_to_target:
-        encoder=encoders[i+"_encoder"]
-        j=apply_targetenc(j,encoder_name)
 
-    #WOE encoding
-    for i in cols_to_woe:
-        encoder=encoders[i+"_encoder"]
-        j=apply_woe(j,encoder_name)
         
-#Feature selection on train set
+#Feature selection 
+
+#Categorical features associated with response
+chi_selected,chi_prefixes=chi2select(df,model_cols)
+#PROCESS THE PREFIXES
+
+#Find predictor columns correlated with each other
+corr_cols=find_corr(df[model_cols])
+
+#Vars with lots of missing variables
+miss_cols=missingcount(df)
+
+#Important variables from random forest
+rf_vars=rf_imp(df[model_cols],df.target)
+
+#COMBINE: the yeses of chi and rf, the nos of corr and miss
+#model_cols=
+
+#Train, test, val(?) split
+if no_val_set:
+    X_train, y_train, X_test, y_test=tt_split(df[model_cols],df['target'])
+else:
+    X_train, y_train, X_test, y_test, X_val, y_val=ttv_split(df[model_cols],df['target'])
 
 
 #Train model
-        
+model, chosenmodel, modelc, modelpenalty, modelweight, modelperf=model_train(X_train,y_train)
 
 #Predictions
-        
-        
+train_prob_pred, train_class_pred=model_predict(X_train,model)
+test_prob_pred, test_class_pred=model_predict(X_test,model)
 
 #Performance
-    
+precision, recall, f1, cm, TN, FP, FN, TP=performance(test_class_pred,y_test)
 
 #User input
     
