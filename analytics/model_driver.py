@@ -21,6 +21,8 @@ df=df[df['target'].notnull()]
 #Convert columns that need to be numeric into floats
 df=convert_numeric(df, cols_to_numeric)
 
+df['NumberOfEngines']=df.NumberOfEngines.fillna(0)
+
 #Turn strings of dates to datetimes and also find year/month/day/day of week
 df=date_processing(df,'EventDate')
 df=date_processing(df,'PublicationDate')
@@ -36,6 +38,8 @@ for i in cols_to_dummy:
 train=df
 test=df
 val=df
+
+
 
 encoders={}
 
