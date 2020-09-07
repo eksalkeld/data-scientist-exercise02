@@ -9,7 +9,7 @@ Created on Sat Sep  5 15:02:01 2020
 import pandas as pd
 
 def encode_carrier(df):
-    
+        
     df['Carrier']='OtherCarrier'
     df['Carrier'][df['AirCarrier'].str.contains("(?i)DELTA AIRLINES|DELTA AIR LINES")] = "Delta"
     df['Carrier'][df['AirCarrier'].str.contains("(?i)SOUTHWEST AIRLINES|SOUTHWEST AIR LINES")] = "Southwest"
