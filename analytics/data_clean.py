@@ -8,6 +8,38 @@ Created on Sun Sep  6 11:57:27 2020
 import pandas as pd
 import numpy as np
 
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import Normalizer
+from sklearn.preprocessing import StandardScaler
+
+
+
+def fitscale(df,scaler):
+    
+    if scaler=="MinMaxScaler":
+        #Define the scaler
+        scaler = MinMaxScaler(feature_range = (0,1))
+    elif scaler=="StandardScaler":
+        scaler= StandardScaler()
+    else:
+        scaler=Normalizer()
+
+    #Train the scaler and fit it
+    scaler.fit_transform(df)
+    
+    #Apply the scaler
+    #df = scaler.transform(df)
+    
+    return df, scaler
+
+
+def apply_scaler(df,scaler):
+    
+    #Apply the scaler
+    df=scaler.transform(df)
+    
+    return df
+
 def strip_columns(df,suffix_vals):
     
     #Suffix_vals should be string or tuple
