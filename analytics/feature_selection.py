@@ -25,10 +25,13 @@ def chi2select(df,model_cols):
     
     #Find the unique prefixes as many of these are dummy variables
     chi_prefixes=list(set([x.split('_')[0] for x in chi_selected]))
+    
+    #Some of these are dummy variables, so to avoid dropping some levels, keep all levels
+    chi_with_dummies=[x for x in model_cols if x.split('_')[0] in chi_prefixes]
 
-    return chi_selected,chi_prefixes
+    return chi_selected,chi_with_dummies
 
-def find_corr(df):
+def find_corr(df,cols_to_dummy):
     
     #List to hold the names of the columns 
     corr_cols = [] 
@@ -43,8 +46,15 @@ def find_corr(df):
             if (corr_matrix.iloc[i, j] >= corr_threshold) and (corr_matrix.columns[j] not in corr_cols):
                 #Add the name of the column with high correlation to the list of columns
                 corr_cols.append(corr_matrix.columns[i])
-                
-    return corr_cols
+    
+    #Remove the dummy variables as they are likely correlated with themselves
+    corr_no_dummy=[]
+    for i in corr_cols:
+        #if(df[i].dtype == np.float64 or np.float or df[i].dtype == np.int64 or df[i].dtype == np.int):
+        if i.split('_')[0] not in cols_to_dummy:
+            corr_no_dummy.append(i)
+    
+    return corr_no_dummy
 
 def missingcount(df):
     
@@ -69,7 +79,7 @@ def missingcount(df):
             #For all other columns
             else:
                 #Count number of missing or '' rows
-                miss_ct=max(df.isnull().sum(),df[df[i]==''].shape[0])
+                miss_ct=max(df[i].isnull().sum(),df[df[i]==''].shape[0])
             #If count of missing in a column is higher than acceptable append the name to the list
             if miss_ct>min_missing:
                 miss_cols.append(i)
@@ -90,11 +100,21 @@ def rf_imp(X,y):
     rfmodel=rf.fit(X,y)
     
     #Extract importances and tie to column names
-    
+    rfimp=pd.DataFrame(list(zip(X.columns,rfmodel.feature_importances_)),columns=['col_name','importance'])
     
     #Find cols that are most important
+    rfimp.sort_values('importance',ascending=False,inplace=True)
+    rfimp.reset_index(inplace=True,drop=True)
     
+    #Pick top x rows
+    rf_select=rfimp.loc[:rf_top,'col_name'].values
     
-    return select_vars
+    #Find the unique prefixes as many of these are dummy variables
+    rf_prefixes=list(set([x.split('_')[0] for x in rf_select]))
+    
+    #Some of these are dummy variables, so to avoid dropping some levels, keep all levels
+    rf_with_dummies=[x for x in X.columns if x.split('_')[0] in rf_prefixes]
+    
+    return rf_with_dummies
     
     
