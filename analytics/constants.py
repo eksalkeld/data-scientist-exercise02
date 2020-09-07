@@ -26,10 +26,11 @@ cols_to_woe=[]
 #Cols that will be frequency encoded: 12-17
 cols_to_freq=['AircraftCategory','BroadPhaseOfFlight','EngineType','FARDescription']
 
-#Feature engineering cutoffs
+#Feature selection cutoffs
 corr_threshold=0.8
 chithresh=0.01
-rf_thresh=0.01
+rf_top=15
+miss_perc=0.8
 
 #Logistic regression
 seed=425
