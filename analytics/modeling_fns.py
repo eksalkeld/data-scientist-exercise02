@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+Functions to train a logistic regression model
 Created on Sun Sep  6 15:57:19 2020
 
 @author: eksalkeld

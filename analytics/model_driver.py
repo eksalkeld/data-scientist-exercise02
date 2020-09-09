@@ -39,6 +39,8 @@ logger.addHandler(ch)
 #pd.set_option('display.max_columns', None)
 #np.set_printoptions(threshold=np.nan)
 
+logger.info('Beginning logistic regression flow')
+
 # Load xml file data
 tree = ET.parse(AVIATION_FILE)
 #Initialize list to hold data

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+Functions to help in feature selection for modeling
 Created on Sun Sep  6 14:40:42 2020
 
 @author: eksalkeld
