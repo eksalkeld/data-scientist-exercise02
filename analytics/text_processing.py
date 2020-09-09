@@ -31,7 +31,7 @@ import gensim
 import re
 import string
 
-
+txtdf=txtdf.reset_index(drop=True)
 
 #compile all the punctuation marks, which will be stripped out
 punc = re.compile( '[%s]' % re.escape( string.punctuation ) )
@@ -121,12 +121,18 @@ txtdf['word_ct']=txtdf.apply(lambda x: sum_word_inst(x['stem']), axis=1)
 #]
 
 #txtdf.apply(lambda x: gensim.corpora.Dictionary(x['stem'].split() ),axis=1)
+#Dictionary of corpus
 wdict=gensim.corpora.Dictionary(txtdf['stem'])
 #ID map for words across the entire corpus
 wdict.token2id
 #How many docs (rows) a word comes up in
 for i in range(len(wdict)):
     print(wdict[i]+": "+str(wdict.dfs[i]))
+    
+corpus_w_ct=[]
+for i in range(len(wdict)):
+    corpus_w_ct.append([wdict[i],wdict.dfs[i]])
+pd.DataFrame(corpus_w_ct,columns=['word','count']).sort_values('count')
 
 #Use the id map for the entire corpus to create a bag of words for each document
 #word replaced by the ID
