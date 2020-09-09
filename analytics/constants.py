@@ -17,10 +17,10 @@ JSON_FOLDER='%s//%s' % (REPO_DIRECTORY,REPO_FOLDER)
 
 #Define columns that need to be numeric
 cols_to_numeric=['Latitude','Longitude','TotalFatalInjuries', 'TotalMinorInjuries', 'TotalSeriousInjuries','TotalUninjured','NumberOfEngines']
-#Cols that have few enough levels they can be dummies (Max levels 8)
-cols_to_dummy=['WeatherCondition','Carrier','AmateurBuilt','Schedule']
-#Cols that will be target encoded: 23+
-cols_to_target=['Make', 'Model','AirportCode','PurposeOfFlight']
+#Cols that have few enough levels they can be dummies (Max levels 8 except for Purpose)
+cols_to_dummy=['WeatherCondition','Carrier','AmateurBuilt','Schedule','PurposeOfFlight']
+#Cols that will be target encoded: 25+
+cols_to_target=['Make', 'Model','AirportCode']
 #Cols that will be WOE encoded
 cols_to_woe=[]
 #Cols that will be frequency encoded: 12-17
