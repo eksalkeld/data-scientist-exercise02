@@ -63,6 +63,11 @@ df=encode_carrier(df)
 for i in cols_to_dummy:
     df,model_cols=dummy_code(df,i,model_cols)
 
+#Remove one of the categories (the unknown category)
+fulldummy=len(model_cols)
+model_cols=[x for x in model_cols if not x.endswith('_')]
+
+
 encoders={}
 
 #Find proper encoding for train set
