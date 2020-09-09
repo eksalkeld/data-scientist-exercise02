@@ -11,11 +11,11 @@ from modeling_fns.py import *
 from constants import *
 
 import pandas as pd
+import numpy as np
 import xml.etree.ElementTree as ET
 
 #Control console output
 pd.set_option('display.max_columns', None)
-import numpy as np
 np.set_printoptions(threshold=np.nan)
 
 # Load xml file data
