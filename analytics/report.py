@@ -5,6 +5,7 @@ Created on Tue Sep  8 11:22:07 2020
 @author: eksalkeld
 """
 from constants import *
+from data_clean import *
 
 import pandas as pd
 import xml.etree.ElementTree as ET
@@ -55,16 +56,16 @@ for i in df.columns:
     
 #Total count per year
 df['TotalCount']=df[['TotalFatalInjuries','TotalMinorInjuries','TotalSeriousInjuries','TotalUninjured']].sum(axis=1)
+#Turn strings of dates to datetimes and also find year/month/day/day of week
+df=date_processing(df,'EventDate')
 graph=df.groupby('EventDate_year').TotalCount.sum().reset_index()
-plt.scatter('EventDate_year','TotalCount', data=graph)
+#plt.scatter('EventDate_year','TotalCount', data=graph)
 
 
 #Create a 1/0 of if there were injuries fatal or otherwise
 df=convert_numeric(df, ['TotalFatalInjuries','TotalMinorInjuries','TotalSeriousInjuries','TotalUninjured'])
 df=create_target(df)
     
-#Turn strings of dates to datetimes and also find year/month/day/day of week
-df=date_processing(df,'EventDate')
 
 '''
 ##############################################Graph One#################################
@@ -107,16 +108,6 @@ yearly_mean=df.groupby('EventDate_year').TotalFatalInjuries.mean().reset_index()
 
 #Combine the number of reports and the proportion of them that had any injury
 graph1=yearly_report.merge(yearly_mean,how='inner',on='EventDate_year')
-
-#Bin the injury rate to make it easier to read
-graph1['Avg Num Fatality']=''
-graph1['Avg Num Fatality'][(graph1['AvgFatal']>=0) & (yearly_proportion['AvgFatal']<0.5)] = "0-0.5"
-graph1['Avg Num Fatality'][(graph1['AvgFatal']>=0.5) & (yearly_proportion['AvgFatal']<1.0)] = "0.5-1"
-graph1['Avg Num Fatality'][(graph1['AvgFatal']>=1.0) & (yearly_proportion['AvgFatal']<1.5)] = "1-1.5"
-graph1['Avg Num Fatality'][(graph1['AvgFatal']>=1.5) & (yearly_proportion['AvgFatal']<2.0)] = "1.5-2"
-graph1['Avg Num Fatality'][(graph1['AvgFatal']>=2.0) & (yearly_proportion['AvgFatal']<2.5)] = "0.5-0.55"
-graph1['Avg Num Fatality'][(graph1['AvgFatal']>=4)] = "4+"
-
 
 #snsplot=sns.lmplot('EventDate_year','Count', data=graph1,fit_reg=False,hue='AvgFatal',palette="Blues")
 #fig=snsplot.fig
