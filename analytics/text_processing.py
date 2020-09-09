@@ -9,13 +9,11 @@ from pandas.io.json import json_normalize
 import pandas as pd
 import json
 import nltk
+import gensim
+import re
+import string
+from collections import defaultdict
 #nltk.download('stopwords')
-
-#JSON_FILE='C://Users//eksalkeld//Documents//GitHub//data-scientist-exercise02//data//NarrativeData_000.json'
-#with open(JSON_FILE, 'r') as f:
-#    jsondata = json.load(f)
-#jsondf=json_normalize(jsondata['data'])
-
 
 import os
 txtdf = pd.DataFrame()
@@ -27,10 +25,7 @@ for file in read_in:
         jsondf=json_normalize(jsondata['data'])
         txtdf=txtdf.append(jsondf)
 
-import gensim
-import re
-import string
-
+#Reset index as it is from multiple files
 txtdf=txtdf.reset_index(drop=True)
 
 #compile all the punctuation marks, which will be stripped out
@@ -97,11 +92,6 @@ def apply_lemm(data,lemm):
         
     return data
 
-
-
-
-from collections import defaultdict
-
 def sum_word_inst(data):
     
     #Dictionary, word as key, instance count as value
@@ -115,10 +105,6 @@ def sum_word_inst(data):
 #For each row (description of accident/event) find how often each word is used
 txtdf['word_ct']=txtdf.apply(lambda x: sum_word_inst(x['stem']), axis=1)
 
-#texts = [
-#    [token for token in text if term_ct[token] > 1]
- #   for text in texts
-#]
 
 #txtdf.apply(lambda x: gensim.corpora.Dictionary(x['stem'].split() ),axis=1)
 #Dictionary of corpus
