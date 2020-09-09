@@ -7,6 +7,7 @@ Created on Sat Sep  5 15:02:01 2020
 """
 
 import pandas as pd
+import category_encoders
 
 def encode_carrier(df):
         
@@ -33,7 +34,7 @@ def target_encode_alternative(df,col_name, model_cols):
 
     return df, model_cols
 
-import category_encoders
+
 def target_encode(df,col_names, model_cols):
     
     try:
