@@ -47,16 +47,6 @@ def tt_split(X,y):
 
 def model_train(X,y):
     
-    #penalty = ['l1', 'l2']
-    #classweight=[None,'balanced']
-    #c = [0.0001, 0.001, 0.01, 1, 100]
-    
-    
-    penalty = ['l2']
-    classweight=['balanced']
-    c = [ 1]
-    
-    
     #Logistic regression
     lr =LogisticRegression(random_state=seed,max_iter=5000)
     #Hyper params for the grid to evaluate
