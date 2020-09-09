@@ -6,6 +6,16 @@ Created on Wed Sep  2 17:56:54 2020
 """
 
 
+""""
+
+THIS IS NOT INTENDED TO BE RUN
+
+THIS IS FOR DEMONSTRATIVE PURPOSES TO SHOW THE BEGINNING STAGES OF THE PROCESS
+
+
+
+"""
+
 
 import json
 import pandas as pd
