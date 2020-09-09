@@ -15,7 +15,12 @@ from sklearn.preprocessing import StandardScaler
 
 
 def fitscale(df,scaler):
-    
+    """
+    Scale the data input using either min max, normalizer, or standard scaler
+    df:     dataframe where all columns passed in are to be scaled
+    scaler: the type of scaling desired (min max vs standard..) 
+    return: the normalized dataframe and fit scaler for future use
+    """
     if scaler=="MinMaxScaler":
         #Define the scaler
         scaler = MinMaxScaler(feature_range = (0,1))
@@ -34,6 +39,12 @@ def fitscale(df,scaler):
 
 
 def apply_scaler(df,scaler):
+    """
+    If scaler has already been fit, and needs to be applied to the data
+    df:     dataframe where all columns passed in are to be scaled
+    scaler: scaler that has already been trained (in fitscale)
+    return: the scaled dataframe
+    """
     
     #Apply the scaler
     df=scaler.transform(df)
@@ -41,6 +52,12 @@ def apply_scaler(df,scaler):
     return df
 
 def strip_columns(df,suffix_vals):
+    """
+    Remove columns with a certain suffix, such as IDs that should not be model input
+    df:             The dataframe with the column names to search for the suffix that will be ommitted
+    suffix_values:  the value of the suffix of columns to be removed. If suffix is not right type, error handling
+    return:         return the list of subset column names
+    """
     
     #Suffix_vals should be string or tuple
     try:
@@ -55,6 +72,13 @@ def strip_columns(df,suffix_vals):
         return df.columns
     
 def date_processing(df,col_name,subcomponents=True):
+    """
+    Turn string to date time and if desired strip off year/month/day/day of week
+    df:             dataframe with the column to transform into date time
+    col_name:       the name of the column from which to create the date time
+    subcomponents:  boolean as to whether to strip off the year/month/day into their own columns, defaults to true
+    return:         dataframe with the new date columns
+    """
     
     try:
         dfdate=df.copy()
@@ -79,6 +103,11 @@ def date_processing(df,col_name,subcomponents=True):
         return df
     
 def create_target(df):
+    """
+    Create a binary 1/0 target to use for modeling
+    df:     Dataframe with the columns needed to create the target
+    return: dataframe with the 1/0 target variable
+    """
     
     #Find the number of fatal, minor, and serious injuries for each flight
     #Sum of any kind of bodily harm from a flight
@@ -100,6 +129,12 @@ def create_target(df):
     
     
 def convert_numeric(df, cols_to_numeric):
+    """
+    Convert string columns into numeric columns
+    df:                 dataframe with the columns to transform into numerics
+    cols_to_numeric:    list of columns that should be made numeric
+    return:             dataframe with the columns now numeric
+    """
     
     #loop through each column that needs to be converted and transform to numeric
     for i in cols_to_numeric:

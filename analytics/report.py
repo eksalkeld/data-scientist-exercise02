@@ -68,6 +68,7 @@ df=date_processing(df,'EventDate')
 
 '''
 ##############################################Graph One#################################
+##############################################Too complicated for one page description#################################
 #How many reports per year
 yearly_report=df.groupby('EventDate_year').AccidentNumber.count().reset_index().rename(columns={'AccidentNumber':'Count'})
    

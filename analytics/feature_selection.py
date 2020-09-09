@@ -13,6 +13,12 @@ from sklearn.ensemble import RandomForestClassifier as RFC
 
 
 def chi2select(df,model_cols):
+    """
+    Chi square selector - select categorical vars that are associated with the categorical outcome
+    df:         dataframe with the categorical predictor vars and the target
+    model_cols: name of the columns to evaluate
+    return:     list of the vars that chi sq selected, list of the vars chi sq selected with all levels of the groups of dummy vars
+    """
     
     #Chi2 for relationship between categorical vars and target
     chi2_scores=chi2(df[model_cols],df.target)
@@ -32,6 +38,13 @@ def chi2select(df,model_cols):
     return chi_selected,chi_with_dummies
 
 def find_corr(df,cols_to_dummy):
+    '''
+    Find the correlation between predictive columns, if two columns have a corr higher than what is acceptable, flag one of the cols
+    Could be used for feature selection
+    df:             dataframe with columns whose correlation need to be evaluated
+    cols_to_dummy:  list of dummy vars - the vars representing diff levels likely inherently associated
+    return:         list of columns with high correlation
+    '''
     
     #List to hold the names of the columns 
     corr_cols = [] 
@@ -57,6 +70,12 @@ def find_corr(df,cols_to_dummy):
     return corr_no_dummy
 
 def missingcount(df):
+    """
+    Find the count of missing values for each column, and see if the percent missing is more than the acceptable threshold
+    Theoretically could be used for feature selection
+    df:     data with the columns to evaluate for amount missing
+    return: list of columns with a missing count higher than the acceptable
+    """
     
     #Number of ok missing values, relative to size of dataframe
     min_missing=int(df.shape[0]*miss_perc)
@@ -92,6 +111,12 @@ def missingcount(df):
 
 
 def rf_imp(X,y):
+    """
+    Fit a random forest to possible input space and find which cols were most important
+    X:      matrix with predictor vars
+    y:      dependent var
+    return: list of vars selected var namess that were most important according to the random forest
+    """
     
     #Define random forest
     rf=RFC(random_state=seed)
