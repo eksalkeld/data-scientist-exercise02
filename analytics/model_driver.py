@@ -11,20 +11,44 @@ from modeling_fns.py import *
 from constants import *
 
 import pandas as pd
-import numpy as np
+#import numpy as np
 import xml.etree.ElementTree as ET
 
+import logging
+#logging.basicConfig(filename='modeldriverlog.log',format='%(asctime)s %(messages)s',filemode='w')
+logger=logging.getLogger('modeling')
+logger.setLevel(logging.INFO)
+
+#File handler
+hdlr=logging.FileHandler('modeldriverlog.log')
+
+#Console handler
+ch=logging.StreamHandler()
+
+#Formatter for file and console
+f_formatter=logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+c_formatter=logging.Formatter('%(levelname)s %(message)s')
+hdlr.setFormatter(f_formatter)
+ch.setFormatter(c_formatter)
+
+#Add handlers
+logger.addHandler(hdlr)
+logger.addHandler(ch)
+
 #Control console output
-pd.set_option('display.max_columns', None)
-np.set_printoptions(threshold=np.nan)
+#pd.set_option('display.max_columns', None)
+#np.set_printoptions(threshold=np.nan)
 
 # Load xml file data
 tree = ET.parse(AVIATION_FILE)
 #Initialize list to hold data
 data = []
 #https://stackoverflow.com/questions/41795198/more-efficient-conversion-of-xml-file-into-dataframe
+#Through first hierarchy
 for el in tree.iterfind('./*'):
+    #Iterate through each row
     for i in el.iterfind('*'):
+        #Access the items in each row and append to the list
         data.append(dict(i.items()))
 #Convert list to dataframe
 aviation = pd.DataFrame(data)
@@ -119,6 +143,7 @@ rf_vars=rf_imp(df[model_cols],df.target)
 #COMBINE: the yeses of chi and rf, the nos of corr and miss
 old_model_cols=model_cols
 model_cols=[x for x in model_cols if (x in chi_with_dummies or x in rf_vars) and (x not in corr_cols and x not in miss_cols)]
+logger.info('There were %s columns, and feature selection passed %s to the model' % (len(old_model_cols),len(model_cols)))
 
 #Scale the features
 dfmodel,scaler=fitscale(df[model_cols],"StandardScaler")
@@ -131,10 +156,15 @@ if no_val_set:
     X_train, y_train, X_test, y_test=tt_split(dfmodel,df['target'])
 else:
     X_train, y_train, X_test, y_test, X_val, y_val=ttv_split(dfmodel,df['target'])
+logger.info('The decision to omit a validation set from being created was: %s' % no_val_set)
 
 
 #Train model
 model, chosenmodel, modelc, modelpenalty, modelweight, modelperf=model_train(X_train[model_cols],y_train)
+logger.info('The selected reg param: %s' % modelc)
+logger.info('The selected model penalty: %s' % modelpenalty)
+logger.info('The selected decision for balancing classes: %s' % modelweight)
+logger.info('The selected model f1 performance: %s' % modelperf)
 
 #Predictions
 train_prob_pred, train_class_pred=model_predict(X_train[model_cols],model)
@@ -151,8 +181,13 @@ coefficients=pd.DataFrame(list(zip(model_cols,chosenmodel.coef_[0])),columns=['c
     
 #Performance
 precision, recall, f1, cm, TN, FP, FN, TP=performance(test_class_pred,y_test)
-
-#User input
+logger.info('The test set precision: %s' % precision)
+logger.info('The test set f1: %s' % f1)
+logger.info('The test set recall: %s' % recall)
+logger.info('The test set true negatives: %s' % TN)
+logger.info('The test set false positives: %s' % FP)
+logger.info('The test set false negatives: %s' % FN)
+logger.info('The test set true positives: %s' % TP)
     
     
     
