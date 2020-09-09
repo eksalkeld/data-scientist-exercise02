@@ -9,6 +9,7 @@ from constants import *
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, roc_curve
 import numpy as np
 
 
@@ -71,19 +72,20 @@ def model_predict(X,model):
     #Predict probability
     prob_pred=model.predict_proba(X)[:,1]
     
+    #Predict 1/0 classification
     class_pred=model.predict(X)
     
     return prob_pred, class_pred
 
 def performance(class_pred,y):
     
-    from sklearn.metrics import classification_report, confusion_matrix, roc_curve
-    
+    #Pull the performance scores for the injury class
     scores=classification_report(y,class_pred,output_dict=True)['1.0']
     precision=scores['precision']
     recall=scores['recall']
     f1=scores['f1-score']
     
+    #Create the confusion matrix, pull off the quadrants
     cm=confusion_matrix(y,class_pred)
     TN=cm[0][0]
     FP=cm[0][1]

@@ -9,7 +9,10 @@ from pandas.io.json import json_normalize
 import pandas as pd
 import json
 import nltk
-import gensim
+#import gensim
+from gensim import corpora
+from gensim import models as genmodels
+from gensim import similarities
 import re
 import string
 from collections import defaultdict
@@ -105,19 +108,19 @@ def sum_word_inst(data):
 #For each row (description of accident/event) find how often each word is used
 txtdf['word_ct']=txtdf.apply(lambda x: sum_word_inst(x['stem']), axis=1)
 
-
-#txtdf.apply(lambda x: gensim.corpora.Dictionary(x['stem'].split() ),axis=1)
 #Dictionary of corpus
-wdict=gensim.corpora.Dictionary(txtdf['stem'])
+wdict=corpora.Dictionary(txtdf['stem'])
 #ID map for words across the entire corpus
 wdict.token2id
 #How many docs (rows) a word comes up in
 for i in range(len(wdict)):
     print(wdict[i]+": "+str(wdict.dfs[i]))
-    
+
+#Iterate through each id and find how many times it appears in the corpus
 corpus_w_ct=[]
 for i in range(len(wdict)):
     corpus_w_ct.append([wdict[i],wdict.dfs[i]])
+#Create a dataframe of the counts and sort to find most/least frequent
 pd.DataFrame(corpus_w_ct,columns=['word','count']).sort_values('count')
 
 #Use the id map for the entire corpus to create a bag of words for each document
@@ -126,7 +129,7 @@ pd.DataFrame(corpus_w_ct,columns=['word','count']).sort_values('count')
 txtdf['BOW']=txtdf.apply(lambda x: wdict.doc2bow(x['stem']),axis=1)
 
 #Create the TFIDF vectors for the entire corpus
-tfidfmodel=gensim.models.TfidfModel(list(txtdf['BOW']))
+tfidfmodel=genmodels.TfidfModel(list(txtdf['BOW']))
 
 #Apply TFIDF on the documents
 #List of tuples with dictionary ID and the new weight
@@ -135,7 +138,7 @@ txtdf['tfidf']=txtdf.apply(lambda x: tfidfmodel[x['BOW']],axis=1)
 #Nuber of unique words
 uniquewords = len( wdict )
 #corp is the BOW
-simindex = gensim.similarities.SparseMatrixSimilarity( txtdf['tfidf'], num_features = uniquewords )
+simindex = similarities.SparseMatrixSimilarity( txtdf['tfidf'], num_features = uniquewords )
 #Number of docs by number of docs similarity matrix
 txtdf.apply(lambda x: simindex[x['BOW']],axis=1)
 
